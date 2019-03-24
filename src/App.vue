@@ -16,45 +16,30 @@
 
     <main class="main">
       <div class="container">
-        <div class="todo-group">
-          <div class="todo-group__header">
-            <h1 class="title">正在进行</h1>
+        <todo-group title="正在进行"
+                    :count=" doingList.length">
+          <todo-item v-for="item in doingList"
+                     :key="item.id"
+                     :id="item.id"
+                     :title="item.title"
+                     :done="item.done"
+                     @remove="id => deleteItem(id)"
+                     @status-change="id => toggleItem(id)"
+                     @title-change="({id, title}) => setItemTitle(id, title)"></todo-item>
+        </todo-group>
 
-            <div class="count">{{ doingList.length }}</div>
-          </div>
-          <div class="todo-group__body">
-            <ul class="todo-list">
-              <todo-item v-for="item in doingList"
-                         :key="item.id"
-                         :id="item.id"
-                         :title="item.title"
-                         :done="item.done"
-                         @remove="id => deleteItem(id)"
-                         @status-change="id => toggleItem(id)"
-                         @title-change="({id, title}) => setItemTitle(id, title)"></todo-item>
+        <todo-group title="已完成"
+                    :count="doneList.length">
+          <todo-item v-for="item in doneList"
+                     :key="item.id"
+                     :id="item.id"
+                     :title="item.title"
+                     :done="item.done"
+                     @remove="id => deleteItem(id)"
+                     @status-change="id => toggleItem(id)"
+                     @title-change="title => setItemTitle(title)"></todo-item>
+        </todo-group>
 
-            </ul>
-          </div>
-        </div>
-        <div class="todo-group">
-          <div class="todo-group__header">
-            <h1 class="title">已完成</h1>
-
-            <div class="count">{{ doneList.length }}</div>
-          </div>
-          <div class="todo-group__body">
-            <ul class="todo-list">
-              <todo-item v-for="item in doneList"
-                         :key="item.id"
-                         :id="item.id"
-                         :title="item.title"
-                         :done="item.done"
-                         @remove="id => deleteItem(id)"
-                         @status-change="id => toggleItem(id)"
-                         @title-change="title => setItemTitle(title)"></todo-item>
-            </ul>
-          </div>
-        </div>
       </div>
     </main>
   </div>
@@ -63,10 +48,12 @@
  <script>
 import shortid from 'shortid';
 import TodoItem from '@/components/TodoItem';
+import TodoGroup from '@/components/TodoGroup';
 
 export default {
   components: {
-    TodoItem
+    TodoItem,
+    TodoGroup
   },
 
   data() {
@@ -106,6 +93,8 @@ export default {
         title: title,
         done: false
       });
+
+      window.localStorage.setItem('dataList', JSON.stringify(this.dataList));
     },
     // 删除代办项
     deleteItem(id) {
@@ -117,6 +106,8 @@ export default {
         });
       }
       this.dataList.splice(index, 1);
+
+      window.localStorage.setItem('dataList', JSON.stringify(this.dataList));
     },
     // 切换状态
     toggleItem(id) {
@@ -131,6 +122,8 @@ export default {
       let target = this.dataList[index];
 
       target.done = !target.done;
+
+      window.localStorage.setItem('dataList', JSON.stringify(this.dataList));
     },
     // 编辑代办项
     setItemTitle(id, title) {
@@ -142,12 +135,25 @@ export default {
       }
       let target = this.dataList[index];
       target.title = title;
+
+      window.localStorage.setItem('dataList', JSON.stringify(this.dataList));
     }
+  },
+
+  created() {
+    // 获取 localstorage 里面的 datalist
+    let storageData = JSON.parse(window.localStorage.getItem('dataList'));
+
+    if (storageData === null) {
+      return window.localStorage.setItem('dataList', JSON.stringify([]));
+    }
+
+    this.dataList = storageData;
   }
 };
 </script>
  
- <style lang='scss' scoped>
+<style lang='scss' scoped>
 * {
   box-sizing: border-box;
 }
@@ -205,30 +211,6 @@ export default {
 
     .container {
       margin: 0 auto;
-
-      .todo-group {
-        padding-top: 20px;
-
-        &__header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-
-          .title {
-            margin: 0;
-
-            font-size: 24px;
-            font-weight: 700;
-          }
-        }
-
-        &__body {
-          .todo-list {
-            padding: 0;
-            list-style: none;
-          }
-        }
-      }
     }
   }
 }

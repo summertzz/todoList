@@ -27,6 +27,8 @@
 
 <script>
 export default {
+  name: 'TodoItem',
+
   props: {
     id: {
       type: String,
