@@ -1,6 +1,6 @@
 <template>
   <li class="todo-list__item"
-      :class="{  'todo-list__item--done': done }">
+      :class="{ 'todo-list__item--done': done }">
     <div class="left">
       <input v-model="checked"
              class="checkbox"
@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+
 export default {
   name: 'TodoItem',
 
@@ -62,12 +64,12 @@ export default {
     },
 
     checked() {
-      // ------------也不懂
-      this.$emit('status-change', this.id);
+      this.toggleItem(this.id);
     }
   },
 
   methods: {
+    ...mapMutations(['deleteItem', 'toggleItem', 'setItemTitle']),
     handleTitleClick() {
       this.editing = true;
       // -----------不懂
@@ -79,13 +81,11 @@ export default {
 
     handleEnter() {
       this.editing = false;
-      // ------------不懂
-      this.$emit('title-change', { id: this.id, title: this.inputText });
+      this.setItemTitle({ id: this.id, title: this.inputText });
     },
 
     handleDeleteButtonClick() {
-      // ------------也不懂
-      this.$emit('remove', this.id);
+      this.deleteItem(this.id);
     }
   },
 
